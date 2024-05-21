@@ -56,12 +56,17 @@ export default function Home() {
             />
           </FormControl>
         </Card>
-        <SimpleGrid columns={4} spacing={10}>
+        <Grid
+          gridTemplateColumns={"1fr 2fr 1fr 1fr"}
+          rounded="md"
+          padding="12px 18px"
+          marginY={1}
+        >
           <GridItem>Name</GridItem>
           <GridItem>Email</GridItem>
           <GridItem>Phone number</GridItem>
           <GridItem>Gender</GridItem>
-        </SimpleGrid>
+        </Grid>
       </Box>
       <FixedSizeList
         key={users.length}
@@ -83,7 +88,7 @@ export default function Home() {
               >
                 <GridItem>{user.name}</GridItem>
                 <GridItem>{user.email}</GridItem>
-                <GridItem>{user.phone}</GridItem>
+                <GridItem>+{user.phone}</GridItem>
                 <GridItem>
                   <Tag
                     borderRadius="full"
