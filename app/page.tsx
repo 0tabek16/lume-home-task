@@ -1,95 +1,103 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import {
+  Box,
+  Card,
+  Container,
+  FormControl,
+  FormLabel,
+  Grid,
+  GridItem,
+  Input,
+  SimpleGrid,
+  Tag,
+  TagLabel,
+  Text,
+} from "@chakra-ui/react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { FixedSizeList } from "react-window";
+import rawUsers from "../static/users.json";
 
 export default function Home() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const controlsRef = useRef<HTMLDivElement | null>(null);
+  const [tableHeight, setTableHeight] = useState(500);
+  const [tableWidth, setTableWidth] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const users = useMemo(
+    () =>
+      rawUsers.filter((user) =>
+        user.name.toLowerCase().includes(searchQuery.toLowerCase())
+      ),
+    [searchQuery]
+  );
+
+  useEffect(() => {
+    if (containerRef.current && controlsRef.current) {
+      setTableWidth(controlsRef.current.clientWidth);
+      setTableHeight(
+        containerRef.current.clientHeight - controlsRef.current.clientHeight - 5
+      );
+    }
+  }, []);
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>app/page.tsx</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{" "}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <Container maxW="container.lg" ref={containerRef} minHeight="100vh">
+      <Box ref={controlsRef}>
+        <Text fontSize="4xl">Customers List</Text>
+        <Card padding={2}>
+          <FormControl>
+            <FormLabel>Search by name</FormLabel>
+            <Input
+              type="search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </a>
-        </div>
-      </div>
-
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
-
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
-
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
-
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
-
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
+          </FormControl>
+        </Card>
+        <SimpleGrid columns={4} spacing={10}>
+          <GridItem>Name</GridItem>
+          <GridItem>Email</GridItem>
+          <GridItem>Phone number</GridItem>
+          <GridItem>Gender</GridItem>
+        </SimpleGrid>
+      </Box>
+      <FixedSizeList
+        key={users.length}
+        height={tableHeight}
+        itemCount={users.length}
+        itemSize={60}
+        width={tableWidth}
+      >
+        {({ index, style }) => {
+          const user = users[index];
+          return (
+            <Box style={style}>
+              <Grid
+                gridTemplateColumns={"1fr 2fr 1fr 1fr"}
+                backgroundColor="white"
+                rounded="md"
+                padding="12px 18px"
+                marginBottom={2}
+              >
+                <GridItem>{user.name}</GridItem>
+                <GridItem>{user.email}</GridItem>
+                <GridItem>{user.phone}</GridItem>
+                <GridItem>
+                  <Tag
+                    borderRadius="full"
+                    variant="subtle"
+                    colorScheme={user.gender === "male" ? "blue" : "yellow"}
+                  >
+                    <TagLabel>{user.gender}</TagLabel>
+                  </Tag>
+                </GridItem>
+              </Grid>
+            </Box>
+          );
+        }}
+      </FixedSizeList>
+    </Container>
   );
 }
